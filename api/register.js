@@ -2,10 +2,20 @@ const { neon } = require('@neondatabase/serverless');
 
 // Load .env for local development (Vercel injects env vars in production)
 if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config();
+    try { require('dotenv').config(); } catch (_) {}
 }
 
 module.exports = async function handler(req, res) {
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    // Handle preflight
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
     // Only allow POST
     if (req.method !== 'POST') {
         res.setHeader('Allow', 'POST');
@@ -18,7 +28,13 @@ module.exports = async function handler(req, res) {
         return res.status(500).json({ error: 'Database not configured. Set DATABASE_URL in environment.' });
     }
 
-    const sql = neon(process.env.DATABASE_URL);
+    let sql;
+    try {
+        sql = neon(process.env.DATABASE_URL);
+    } catch (err) {
+        console.error('Failed to connect to database:', err);
+        return res.status(500).json({ error: 'Database connection failed.' });
+    }
 
     try {
         // Create table if it doesn't exist (idempotent)
@@ -33,7 +49,7 @@ module.exports = async function handler(req, res) {
             )
         `;
 
-        const { name, email, phone, college } = req.body;
+        const { name, email, phone, college } = req.body || {};
 
         // Validation
         if (!name || !email || !phone || !college) {
