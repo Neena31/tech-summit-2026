@@ -44,6 +44,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(data)
             });
 
+            // Check if the response is JSON before parsing
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error(
+                    response.status === 404
+                        ? 'Registration API not found. Please try again later.'
+                        : `Server error (${response.status}). Please try again later.`
+                );
+            }
+
             const result = await response.json();
 
             // Handle Response
