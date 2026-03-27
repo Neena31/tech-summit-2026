@@ -1,14 +1,14 @@
 {
   "name": "techx-summit-2026",
   "version": "1.0.0",
-  "description": "TechX Summit 2026 Registration Website",
-  "main": "server.js",
+  "description": "TechX Summit 2026 Registration Website — Neon PostgreSQL + Vercel",
+  "private": true,
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "npx vercel dev",
+    "build": "echo 'No build step needed'"
   },
   "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.18.2"
+    "@neondatabase/serverless": "^0.10.4",
+    "dotenv": "^16.4.7"
   }
 }
